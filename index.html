@@ -92,6 +92,34 @@
             width: max-content;
         }
 
+        /* Container untuk Image + Tombol X */
+        .img-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .btn-remove {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+        }
+
+        .btn-remove:hover { transform: scale(1.1); background: #dc2626; }
+
         .mode-portrait { 
             display: grid !important;
             grid-template-columns: repeat(2, 1fr); 
@@ -109,10 +137,12 @@
             object-fit: contain;
             background: #ffffff;
             border-radius: 4px;
+            width: 100%;
         }
 
-        .mode-portrait .img-item { width: 100%; height: auto; min-height: 120px; }
+        .mode-portrait .img-item { min-height: 120px; }
         .mode-landscape .img-item { height: 400px; width: auto; }
+        .mode-landscape .img-wrapper { height: 400px; }
 
         .nav-pills .nav-link {
             border-radius: 10px;
@@ -138,25 +168,16 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            transition: transform 0.1s;
         }
-
-        .download-btn:active { transform: scale(0.98); }
 
         /* Toast Styling */
         .toast-container { z-index: 2000; }
-        .custom-toast {
-            border-radius: 10px;
-            border: none;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            font-size: 0.85rem;
-        }
     </style>
 </head>
 <body>
 
 <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3">
-    <div id="limitToast" class="toast custom-toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div id="limitToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="d-flex">
             <div class="toast-body">
                 <i class="bi bi-exclamation-circle me-2"></i> Maksimal pilih 4 foto saja!
@@ -168,7 +189,7 @@
 
 <div class="card main-card p-4">
     <div class="header-title text-uppercase">Collage Maker</div>
-    <span class="version-text">Versi 1.0.1</span>
+    <span class="version-text">Versi 1.0.2</span>
     
     <ul class="nav nav-pills nav-fill mb-4">
         <li class="nav-item">
@@ -193,7 +214,7 @@
 
     <div class="preview-scroll-container mb-4">
         <div id="collage-area" class="mode-portrait">
-            <div class="text-muted py-5 text-center w-100" style="grid-column: span 2;">
+            <div class="text-muted py-5 text-center w-100 placeholder-text" style="grid-column: span 2;">
                 <small>Foto akan muncul di sini</small>
             </div>
         </div>
@@ -223,69 +244,99 @@
     const fileNameDisplay = document.getElementById('file-name-display');
     const exportBtn = document.getElementById('exportBtn');
     
-    // Inisialisasi Toast
+    let selectedImages = []; // Array untuk menyimpan data gambar secara dinamis
     const limitToast = new bootstrap.Toast(document.getElementById('limitToast'), { delay: 3000 });
 
     function setMode(mode, btn) {
         document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         collageArea.className = mode;
-        render();
+        updateView();
     }
 
-    fileInput.onchange = render;
-
-    function render() {
+    fileInput.onchange = function() {
         const files = Array.from(fileInput.files);
         
-        if (files.length > 4) {
-            limitToast.show(); // Tampilkan notifikasi modern
+        if (selectedImages.length + files.length > 4) {
+            limitToast.show();
             fileInput.value = "";
+            return;
+        }
+
+        files.forEach(file => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                selectedImages.push(e.target.result);
+                updateView();
+            };
+            reader.readAsDataURL(file);
+        });
+        fileInput.value = ""; // Reset input agar bisa pilih file yang sama jika perlu
+    };
+
+    function removeImage(index) {
+        selectedImages.splice(index, 1);
+        updateView();
+    }
+
+    function updateView() {
+        collageArea.innerHTML = '';
+        
+        if (selectedImages.length === 0) {
+            collageArea.innerHTML = `<div class="text-muted py-5 text-center w-100" style="grid-column: span 2;"><small>Foto akan muncul di sini</small></div>`;
             fileNameDisplay.innerHTML = "Pilih Maksimal 4 Foto";
             return;
         }
 
-        if (files.length === 0) return;
+        fileNameDisplay.innerHTML = `<span class="text-dark">Total:</span> ${selectedImages.length} Foto terpilih`;
 
-        const names = files.map(f => f.name).join(", ");
-        fileNameDisplay.innerHTML = `<span class="text-dark">File:</span> ${names}`;
-
-        collageArea.innerHTML = '';
-        files.forEach(file => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                img.className = 'img-item';
-                collageArea.appendChild(img);
-            };
-            reader.readAsDataURL(file);
+        selectedImages.forEach((src, index) => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'img-wrapper';
+            
+            wrapper.innerHTML = `
+                <button class="btn-remove" onclick="removeImage(${index})" title="Hapus">
+                    <i class="bi bi-x"></i>
+                </button>
+                <img src="${src}" class="img-item">
+            `;
+            collageArea.appendChild(wrapper);
         });
     }
 
     exportBtn.onclick = async () => {
-        if (collageArea.querySelectorAll('img').length === 0) return;
+        if (selectedImages.length === 0) return;
 
-        exportBtn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> MEMPROSES...`;
+        // Sembunyikan semua tombol X sebelum difoto
+        const removeButtons = document.querySelectorAll('.btn-remove');
+        removeButtons.forEach(btn => btn.style.display = 'none');
+
+        exportBtn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> PROSES...`;
         exportBtn.disabled = true;
 
         const format = document.getElementById('format').value;
         const ext = format === 'image/jpeg' ? 'jpg' : 'png';
         
-        const canvas = await html2canvas(collageArea, { 
-            scale: 2, 
-            useCORS: true,
-            backgroundColor: "#ffffff"
-        });
+        try {
+            const canvas = await html2canvas(collageArea, { 
+                scale: 2, 
+                useCORS: true,
+                backgroundColor: "#ffffff"
+            });
 
-        const n = new Date();
-        const timestamp = `${n.getFullYear()}${String(n.getDate()).padStart(2,'0')}${String(n.getMonth()+1).padStart(2,'0')}_${String(n.getHours()).padStart(2,'0')}${String(n.getMinutes()).padStart(2,'0')}${String(n.getSeconds()).padStart(2,'0')}`;
-        
-        const link = document.createElement('a');
-        link.download = `collage_${timestamp}.${ext}`;
-        link.href = canvas.toDataURL(format, 0.8); 
-        link.click();
+            const n = new Date();
+            const timestamp = `${n.getFullYear()}${String(n.getDate()).padStart(2,'0')}${String(n.getMonth()+1).padStart(2,'0')}_${String(n.getHours()).padStart(2,'0')}${String(n.getMinutes()).padStart(2,'0')}${String(n.getSeconds()).padStart(2,'0')}`;
+            
+            const link = document.createElement('a');
+            link.download = `collage_${timestamp}.${ext}`;
+            link.href = canvas.toDataURL(format, 0.8); 
+            link.click();
+        } catch (err) {
+            console.error(err);
+        }
 
+        // Munculkan kembali tombol X setelah download selesai
+        removeButtons.forEach(btn => btn.style.display = 'flex');
         exportBtn.innerHTML = `<i class="bi bi-download"></i> DOWNLOAD`;
         exportBtn.disabled = false;
     };
