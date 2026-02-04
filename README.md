@@ -1,2 +1,2 @@
 # collage-maker
-collage maker, just for have fun, test my code skill
+collage maker, just for fun, test my code skill
