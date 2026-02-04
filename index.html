@@ -41,7 +41,7 @@
 
 <div class="card main-card p-4">
     <div class="header-title text-uppercase">Collage Maker</div>
-    <span class="version-text">Versi 1.1.0</span>
+    <span class="version-text">Versi 1.1.1</span>
     
     <ul class="nav nav-pills mb-4 gap-2">
         <li class="nav-item flex-fill"><button class="nav-link active" onclick="setMode('mode-landscape', this)"><i class="bi bi-phone-landscape"></i> Landscape</button></li>
@@ -73,6 +73,7 @@
     const collageArea = document.getElementById('collage-area');
     const exportBtn = document.getElementById('exportBtn');
     const refreshBtn = document.getElementById('refreshBtn');
+    const fileNameDisplay = document.getElementById('file-name-display');
     let selectedImages = [];
 
     function setMode(mode, btn) {
@@ -84,7 +85,10 @@
 
     fileInput.onchange = function() {
         const files = Array.from(fileInput.files);
-        if (selectedImages.length + files.length > 4) return;
+        if (selectedImages.length + files.length > 4) {
+            alert("Maksimal 4 foto!");
+            return;
+        }
         files.forEach(file => {
             const reader = new FileReader();
             reader.onload = (e) => { selectedImages.push(e.target.result); updateView(); };
@@ -95,11 +99,17 @@
 
     function updateView() {
         collageArea.innerHTML = '';
+        
+        // Update Teks Dinamis di Area Pilih Foto
         if (selectedImages.length === 0) {
+            fileNameDisplay.innerText = "Pilih Foto | maks 4 foto";
             collageArea.classList.add('is-empty');
             collageArea.innerHTML = '<div class="text-muted"><small>Foto akan muncul di sini</small></div>';
             return;
+        } else {
+            fileNameDisplay.innerText = `${selectedImages.length} Foto diupload`;
         }
+
         collageArea.classList.remove('is-empty');
         selectedImages.forEach((src, index) => {
             const wrapper = document.createElement('div');
@@ -109,7 +119,10 @@
         });
     }
 
-    function removeImage(index) { selectedImages.splice(index, 1); updateView(); }
+    function removeImage(index) { 
+        selectedImages.splice(index, 1); 
+        updateView(); 
+    }
 
     function resetApp() {
         selectedImages = [];
