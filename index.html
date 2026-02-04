@@ -3,225 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Collage Maker Pro</title>
+    <title>Collage Maker Pro HD</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     
     <style>
-        :root {
-            --primary-color: #4f46e5;
-            --bg-color: #f8fafc;
-            --success-color: #10b981;
-        }
-
-        body { 
-            background-color: var(--bg-color); 
-            padding: 15px; 
-            font-family: 'Inter', sans-serif;
-            color: #1e293b;
-        }
-
-        .main-card { 
-            max-width: 500px; 
-            margin: auto; 
-            border-radius: 20px; 
-            border: none; 
-            background: white; 
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-        }
-        
-        .header-title { 
-            font-weight: 800; 
-            font-size: 1.3rem;
-            text-align: center; 
-            margin-bottom: 2px; 
-            color: #0f172a;
-        }
-
-        .version-text {
-            display: block;
-            text-align: center;
-            font-size: 0.7rem;
-            color: #94a3b8;
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
+        :root { --primary-color: #4f46e5; --bg-color: #f8fafc; --success-color: #10b981; }
+        body { background-color: var(--bg-color); padding: 15px; font-family: 'Inter', sans-serif; }
+        .main-card { max-width: 500px; margin: auto; border-radius: 20px; border: none; background: white; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
+        .header-title { font-weight: 800; font-size: 1.3rem; text-align: center; color: #0f172a; text-transform: uppercase; }
+        .version-text { display: block; text-align: center; font-size: 0.7rem; color: #94a3b8; font-weight: 600; margin-bottom: 20px; }
 
         /* Navigasi */
-        .nav-pills {
-            display: flex;
-            width: 100%;
-            gap: 10px;
-        }
-
+        .nav-pills { display: flex; width: 100%; gap: 10px; }
         .nav-pills .nav-item { flex: 1; }
-
         .nav-pills .nav-link {
-            width: 100%;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 0.8rem;
-            color: #64748b;
-            border: 1px solid #e2e8f0;
-            padding: 12px 5px;
-            text-transform: uppercase;
+            width: 100%; border-radius: 12px; font-weight: 700; font-size: 0.8rem;
+            color: #64748b; border: 1px solid #e2e8f0; padding: 12px 5px;
             display: flex; align-items: center; justify-content: center; gap: 8px;
         }
+        .nav-pills .nav-link.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); }
 
-        .nav-pills .nav-link.active { 
-            background-color: var(--primary-color); 
-            color: white; border-color: var(--primary-color);
-        }
-
-        .custom-file-upload {
-            border: 2px dashed #cbd5e1;
-            padding: 20px;
-            cursor: pointer;
-            width: 100%;
-            border-radius: 12px;
-            text-align: center;
-            background: #f8fafc;
-        }
+        .custom-file-upload { border: 2px dashed #cbd5e1; padding: 20px; cursor: pointer; width: 100%; border-radius: 12px; text-align: center; background: #f8fafc; }
 
         /* Container Preview */
         .preview-scroll-container {
-            width: 100%;
-            background: #f1f5f9;
-            padding: 15px;
-            border-radius: 12px;
-            margin-top: 15px;
-            display: flex;
-            justify-content: center;
-            border: 1px solid #e2e8f0;
-            overflow-x: auto;
-            min-height: 250px;
+            width: 100%; background: #f1f5f9; padding: 15px; border-radius: 12px;
+            margin-top: 15px; display: flex; justify-content: center;
+            border: 1px solid #e2e8f0; overflow-x: auto; min-height: 250px;
         }
 
-        #collage-area {
-            background: #ffffff;
-            padding: 10px;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        #collage-area { background: #ffffff; padding: 10px; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
 
-        /* FIX: Tampilan Placeholder Konsisten (Sesuai Gambar User) */
-        .is-empty {
-            width: 100% !important;
-            max-width: 350px !important;
-            height: 200px !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-        }
+        /* Placeholder */
+        .is-empty { width: 100% !important; max-width: 350px !important; height: 200px !important; display: flex !important; align-items: center !important; justify-content: center !important; }
 
-        /* --- Logika Layout Saat Ada Foto --- */
-        .mode-portrait:not(.is-empty) { 
-            display: grid !important;
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 8px;
-            width: 280px !important; 
-        }
-
-        .mode-landscape:not(.is-empty) { 
-            display: flex !important;
-            flex-direction: row !important;
-            gap: 8px;
-            width: auto !important; 
-        }
+        /* Layout HD */
+        .mode-portrait:not(.is-empty) { display: grid !important; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 320px !important; }
+        .mode-landscape:not(.is-empty) { display: flex !important; flex-direction: row !important; gap: 10px; width: auto !important; }
 
         .img-wrapper { position: relative; display: inline-block; }
+        .btn-remove { position: absolute; top: 5px; right: 5px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 12px; z-index: 10; }
 
-        .btn-remove {
-            position: absolute; top: 5px; right: 5px;
-            background: rgba(239, 68, 68, 0.9);
-            color: white; border: none; border-radius: 50%;
-            width: 22px; height: 22px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 12px; z-index: 10;
-        }
+        .img-item { display: block; object-fit: cover; background: #eee; border-radius: 2px; }
+        .mode-portrait .img-item { width: 150px; height: 200px; }
+        .mode-landscape .img-item { height: 300px; width: 220px; }
 
-        .img-item {
-            display: block;
-            object-fit: cover;
-            background: #eee;
-            border-radius: 2px;
-        }
-
-        .mode-portrait .img-item { width: 100%; height: 160px; }
-        .mode-landscape .img-item { height: 200px; width: 150px; }
-
-        .placeholder-box {
-            color: #94a3b8;
-            font-weight: 500;
-        }
-
-        .download-btn { 
-            background: var(--success-color); color: white; 
-            font-weight: 700; padding: 14px; border: none; 
-            border-radius: 10px; width: 100%;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
+        .placeholder-box { color: #94a3b8; font-weight: 500; }
+        .download-btn { background: var(--success-color); color: white; font-weight: 700; padding: 14px; border: none; border-radius: 10px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; }
     </style>
 </head>
 <body>
 
-<div id="limitToast" class="toast-container position-fixed top-0 start-50 translate-middle-x p-3" style="z-index: 2000;">
-    <div class="toast align-items-center text-white bg-danger border-0" role="alert">
-        <div class="d-flex">
-            <div class="toast-body">Maksimal 4 foto!</div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-        </div>
-    </div>
-</div>
-
 <div class="card main-card p-4">
-    <div class="header-title">COLLAGE MAKER</div>
-    <span class="version-text">Versi 1.0.7</span>
+    <div class="header-title">Collage Maker HD</div>
+    <span class="version-text">Versi 1.0.8 (Ultra Resolution)</span>
     
     <ul class="nav nav-pills mb-4">
-        <li class="nav-item">
-            <button class="nav-link active" onclick="setMode('mode-landscape', this)">
-                <i class="bi bi-phone-landscape"></i> Landscape
-            </button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link" onclick="setMode('mode-portrait', this)">
-                <i class="bi bi-phone"></i> Portrait
-            </button>
-        </li>
+        <li class="nav-item"><button class="nav-link active" onclick="setMode('mode-landscape', this)"><i class="bi bi-phone-landscape"></i> Landscape</button></li>
+        <li class="nav-item"><button class="nav-link" onclick="setMode('mode-portrait', this)"><i class="bi bi-phone"></i> Portrait</button></li>
     </ul>
 
     <div class="mb-3">
         <label for="fileInput" class="custom-file-upload">
             <i class="bi bi-cloud-arrow-up fs-2 text-primary"></i>
-            <div id="file-name-display" class="small fw-bold text-primary mt-2">Pilih Maksimal 4 Foto</div>
+            <div id="file-name-display" class="small fw-bold text-primary mt-2">Pilih Foto Kamera Asli</div>
         </label>
         <input type="file" id="fileInput" style="display:none" multiple accept="image/*">
     </div>
 
     <div class="preview-scroll-container mb-4">
         <div id="collage-area" class="mode-landscape is-empty">
-            <div class="placeholder-box">
-                <small>Foto akan muncul di sini</small>
-            </div>
+            <div class="placeholder-box"><small>Foto akan muncul di sini</small></div>
         </div>
     </div>
 
-    <div class="pt-2">
-        <div class="input-group mb-3 shadow-sm">
-            <span class="input-group-text bg-white border-end-0"><i class="bi bi-file-earmark-image"></i></span>
-            <select id="format" class="form-select fw-semibold border-start-0 shadow-none">
-                <option value="image/jpeg">JPEG (Kecil)</option>
-                <option value="image/png">PNG (Kualitas Tinggi)</option>
-            </select>
-        </div>
-        <button id="exportBtn" class="download-btn text-uppercase">
-            <i class="bi bi-download"></i> Download
-        </button>
-    </div>
+    <button id="exportBtn" class="download-btn text-uppercase"><i class="bi bi-download"></i> Simpan HD (1-2MB)</button>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -237,8 +95,6 @@
     function setMode(mode, btn) {
         document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        
-        // Simpan class is-empty jika memang masih kosong
         const emptyClass = selectedImages.length === 0 ? ' is-empty' : '';
         collageArea.className = mode + emptyClass;
         updateView();
@@ -246,66 +102,56 @@
 
     fileInput.onchange = function() {
         const files = Array.from(fileInput.files);
-        if (selectedImages.length + files.length > 4) {
-            new bootstrap.Toast(document.querySelector('.toast')).show();
-            return;
-        }
+        if (selectedImages.length + files.length > 4) return;
         files.forEach(file => {
             const reader = new FileReader();
-            reader.onload = (e) => {
-                selectedImages.push(e.target.result);
-                updateView();
-            };
+            reader.onload = (e) => { selectedImages.push(e.target.result); updateView(); };
             reader.readAsDataURL(file);
         });
         fileInput.value = "";
     };
 
-    function removeImage(index) {
-        selectedImages.splice(index, 1);
-        updateView();
-    }
-
     function updateView() {
         collageArea.innerHTML = '';
-        
         if (selectedImages.length === 0) {
             collageArea.classList.add('is-empty');
             collageArea.innerHTML = '<div class="placeholder-box"><small>Foto akan muncul di sini</small></div>';
-            fileNameDisplay.innerText = "Pilih Maksimal 4 Foto";
             return;
         }
-
-        // Lepas class is-empty agar layout portrait/landscape aktif
         collageArea.classList.remove('is-empty');
-        fileNameDisplay.innerHTML = `Total: ${selectedImages.length} Foto`;
-        
         selectedImages.forEach((src, index) => {
             const wrapper = document.createElement('div');
             wrapper.className = 'img-wrapper';
-            wrapper.innerHTML = `
-                <button class="btn-remove" onclick="removeImage(${index})"><i class="bi bi-x"></i></button>
-                <img src="${src}" class="img-item">
-            `;
+            wrapper.innerHTML = `<button class="btn-remove" onclick="removeImage(${index})"><i class="bi bi-x"></i></button><img src="${src}" class="img-item">`;
             collageArea.appendChild(wrapper);
         });
     }
 
+    function removeImage(index) { selectedImages.splice(index, 1); updateView(); }
+
     exportBtn.onclick = async () => {
         if (selectedImages.length === 0) return;
         document.querySelectorAll('.btn-remove').forEach(btn => btn.style.display = 'none');
-        exportBtn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> PROSES...`;
+        exportBtn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> PROSES HD...`;
         
         try {
-            const canvas = await html2canvas(collageArea, { scale: 2, useCORS: true, backgroundColor: "#ffffff" });
+            // SCALE 5 agar resolusi akhir mencapai ~3000-4000 pixel
+            const canvas = await html2canvas(collageArea, { 
+                scale: 5, 
+                useCORS: true, 
+                backgroundColor: "#ffffff",
+                imageTimeout: 0
+            });
+
             const link = document.createElement('a');
-            link.download = `collage_${Date.now()}.jpg`;
-            link.href = canvas.toDataURL("image/jpeg", 0.9); 
+            link.download = `Laporan_HD_${Date.now()}.jpg`;
+            // Kualitas 1.0 (Maksimal) untuk menjaga ukuran file tetap besar/padat
+            link.href = canvas.toDataURL("image/jpeg", 1.0); 
             link.click();
         } catch (err) { console.error(err); }
 
         document.querySelectorAll('.btn-remove').forEach(btn => btn.style.display = 'flex');
-        exportBtn.innerHTML = `<i class="bi bi-download"></i> DOWNLOAD`;
+        exportBtn.innerHTML = `<i class="bi bi-download"></i> SIMPAN HD (1-2MB)`;
     };
 </script>
 </body>
