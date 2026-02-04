@@ -48,7 +48,7 @@
             margin-bottom: 20px;
         }
 
-        /* Perbaikan Tombol: Sama Lebar 50/50 */
+        /* Navigasi Tombol Proposional */
         .nav-pills {
             display: flex;
             width: 100%;
@@ -72,7 +72,6 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            transition: all 0.2s;
         }
 
         .nav-pills .nav-link.active { 
@@ -89,40 +88,43 @@
             border-radius: 12px;
             text-align: center;
             background: #f8fafc;
-            transition: all 0.2s ease;
-        }
-
-        .custom-file-upload:hover {
-            border-color: var(--primary-color);
-            background: #eef2ff;
-        }
-
-        #file-name-display {
-            font-weight: 600;
-            font-size: 0.8rem;
-            color: var(--primary-color);
-            margin-top: 8px;
-            word-break: break-all;
         }
 
         .preview-scroll-container {
             width: 100%;
             overflow-x: auto;
             background: #f1f5f9;
-            padding: 12px;
+            padding: 15px;
             border-radius: 12px;
             margin-top: 15px;
             display: flex;
             justify-content: center;
             border: 1px solid #e2e8f0;
+            min-height: 200px; /* Agar kotak placeholder tidak terlalu gepeng */
         }
 
+        /* --- LOGIKA PERBAIKAN PREVIEW --- */
         #collage-area {
             background: #ffffff;
-            display: grid;
+            padding: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-radius: 4px;
+        }
+
+        /* Saat Portrait: Kotak meninggi (seperti gambar no 2) */
+        .mode-portrait { 
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr); 
             gap: 8px;
-            padding: 8px;
-            width: max-content;
+            width: 300px !important; /* Lebar tetap supaya proporsinya vertikal */
+        }
+
+        /* Saat Landscape: Kotak memanjang ke samping (seperti gambar no 1) */
+        .mode-landscape { 
+            display: flex !important;
+            flex-direction: row !important;
+            gap: 8px;
+            width: auto !important; 
         }
 
         .img-wrapper {
@@ -138,41 +140,33 @@
             color: white;
             border: none;
             border-radius: 50%;
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
-            cursor: pointer;
+            font-size: 12px;
             z-index: 10;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        /* Layout Modes */
-        .mode-portrait { 
-            display: grid !important;
-            grid-template-columns: repeat(2, 1fr); 
-            width: 100% !important;
-            max-width: 450px;
-        }
-
-        .mode-landscape { 
-            display: flex !important;
-            flex-direction: row !important;
         }
 
         .img-item {
             display: block;
-            object-fit: contain;
-            background: #ffffff;
-            border-radius: 4px;
-            width: 100%;
+            object-fit: cover;
+            background: #eee;
+            border-radius: 2px;
         }
 
-        .mode-portrait .img-item { min-height: 120px; }
-        .mode-landscape .img-item { height: 350px; width: auto; }
-        .mode-landscape .img-wrapper { height: 350px; }
+        /* Ukuran Gambar di Mode Portrait */
+        .mode-portrait .img-item { 
+            width: 100%; 
+            height: 180px; 
+        }
+
+        /* Ukuran Gambar di Mode Landscape */
+        .mode-landscape .img-item { 
+            height: 250px; 
+            width: 180px; 
+        }
 
         .download-btn { 
             background: var(--success-color); 
@@ -186,7 +180,6 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            text-transform: uppercase;
         }
 
         .toast-container { z-index: 2000; }
@@ -207,16 +200,16 @@
 
 <div class="card main-card p-4">
     <div class="header-title text-uppercase">Collage Maker</div>
-    <span class="version-text">Versi 1.0.4</span>
+    <span class="version-text">Versi 1.0.5</span>
     
     <ul class="nav nav-pills mb-4">
         <li class="nav-item">
-            <button class="nav-link active" onclick="setMode('mode-landscape', this)">
+            <button id="btn-landscape" class="nav-link active" onclick="setMode('mode-landscape', this)">
                 <i class="bi bi-phone-landscape"></i> Landscape
             </button>
         </li>
         <li class="nav-item">
-            <button class="nav-link" onclick="setMode('mode-portrait', this)">
+            <button id="btn-portrait" class="nav-link" onclick="setMode('mode-portrait', this)">
                 <i class="bi bi-phone"></i> Portrait
             </button>
         </li>
@@ -232,7 +225,7 @@
 
     <div class="preview-scroll-container mb-4">
         <div id="collage-area" class="mode-landscape">
-            <div class="text-muted py-5 text-center w-100 placeholder-text">
+            <div id="placeholder" class="text-muted py-5 text-center w-100">
                 <small>Foto akan muncul di sini</small>
             </div>
         </div>
@@ -247,7 +240,7 @@
             </select>
         </div>
         
-        <button id="exportBtn" class="download-btn">
+        <button id="exportBtn" class="download-btn text-uppercase">
             <i class="bi bi-download"></i> Download
         </button>
     </div>
@@ -269,22 +262,20 @@
         document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         
-        // Ubah class container agar sesuai mode terpilih
+        // Update class pada area kolase
         collageArea.className = mode;
         
-        // Render ulang untuk memastikan ukuran gambar menyesuaikan mode baru
+        // Paksa render ulang agar placeholder menyesuaikan bentuk baru
         updateView();
     }
 
     fileInput.onchange = function() {
         const files = Array.from(fileInput.files);
-        
         if (selectedImages.length + files.length > 4) {
             limitToast.show();
             fileInput.value = "";
             return;
         }
-
         files.forEach(file => {
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -305,7 +296,11 @@
         collageArea.innerHTML = '';
         
         if (selectedImages.length === 0) {
-            collageArea.innerHTML = `<div class="text-muted py-5 text-center w-100"><small>Foto akan muncul di sini</small></div>`;
+            // Tampilan Placeholder sesuai mode yang aktif
+            const isPortrait = collageArea.classList.contains('mode-portrait');
+            const placeholderStyle = isPortrait ? 'width:100%; height:200px; display:flex; align-items:center; justify-content:center;' : 'width:300px; height:150px; display:flex; align-items:center; justify-content:center;';
+            
+            collageArea.innerHTML = `<div class="text-muted text-center" style="${placeholderStyle}"><small>Foto akan muncul di sini</small></div>`;
             fileNameDisplay.innerHTML = "Pilih Maksimal 4 Foto";
             return;
         }
@@ -315,11 +310,8 @@
         selectedImages.forEach((src, index) => {
             const wrapper = document.createElement('div');
             wrapper.className = 'img-wrapper';
-            
             wrapper.innerHTML = `
-                <button class="btn-remove" onclick="removeImage(${index})" title="Hapus">
-                    <i class="bi bi-x"></i>
-                </button>
+                <button class="btn-remove" onclick="removeImage(${index})"><i class="bi bi-x"></i></button>
                 <img src="${src}" class="img-item">
             `;
             collageArea.appendChild(wrapper);
@@ -328,7 +320,6 @@
 
     exportBtn.onclick = async () => {
         if (selectedImages.length === 0) return;
-
         const removeButtons = document.querySelectorAll('.btn-remove');
         removeButtons.forEach(btn => btn.style.display = 'none');
 
@@ -339,22 +330,14 @@
         const ext = format === 'image/jpeg' ? 'jpg' : 'png';
         
         try {
-            const canvas = await html2canvas(collageArea, { 
-                scale: 2, 
-                useCORS: true,
-                backgroundColor: "#ffffff"
-            });
-
+            const canvas = await html2canvas(collageArea, { scale: 2, useCORS: true, backgroundColor: "#ffffff" });
             const n = new Date();
             const timestamp = `${n.getFullYear()}${String(n.getDate()).padStart(2,'0')}${String(n.getMonth()+1).padStart(2,'0')}_${String(n.getHours()).padStart(2,'0')}${String(n.getMinutes()).padStart(2,'0')}${String(n.getSeconds()).padStart(2,'0')}`;
-            
             const link = document.createElement('a');
             link.download = `collage_${timestamp}.${ext}`;
             link.href = canvas.toDataURL(format, 0.8); 
             link.click();
-        } catch (err) {
-            console.error(err);
-        }
+        } catch (err) { console.error(err); }
 
         removeButtons.forEach(btn => btn.style.display = 'flex');
         exportBtn.innerHTML = `<i class="bi bi-download"></i> DOWNLOAD`;
