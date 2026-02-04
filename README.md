@@ -1,2 +1,3 @@
 # collage-maker
-collage maker, just for fun, test my code skill
+Web based app, membuat foto collage bentuk potrait ataupun landscape
+app sederhana, hanya untuk mempermudah pekerjaan sebagai petugas lapangan
