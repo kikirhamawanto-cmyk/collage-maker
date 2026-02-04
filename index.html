@@ -23,7 +23,7 @@
         }
 
         .main-card { 
-            max-width: 600px; 
+            max-width: 550px; 
             margin: auto; 
             border-radius: 20px; 
             border: none; 
@@ -33,7 +33,7 @@
         
         .header-title { 
             font-weight: 800; 
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             text-align: center; 
             margin-bottom: 2px; 
             color: #0f172a;
@@ -42,20 +42,20 @@
         .version-text {
             display: block;
             text-align: center;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #94a3b8;
             font-weight: 600;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .custom-file-upload {
             border: 2px dashed #cbd5e1;
-            padding: 25px;
+            padding: 20px;
             cursor: pointer;
             width: 100%;
-            border-radius: 15px;
+            border-radius: 12px;
             text-align: center;
-            background: #f1f5f9;
+            background: #f8fafc;
             transition: all 0.2s ease;
         }
 
@@ -66,9 +66,9 @@
 
         #file-name-display {
             font-weight: 600;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--primary-color);
-            margin-top: 10px;
+            margin-top: 8px;
             word-break: break-all;
         }
 
@@ -76,9 +76,9 @@
             width: 100%;
             overflow-x: auto;
             background: #f1f5f9;
-            padding: 15px;
-            border-radius: 16px;
-            margin-top: 20px;
+            padding: 12px;
+            border-radius: 12px;
+            margin-top: 15px;
             display: flex;
             justify-content: center;
             border: 1px solid #e2e8f0;
@@ -87,8 +87,8 @@
         #collage-area {
             background: #ffffff;
             display: grid;
-            gap: 10px;
-            padding: 10px;
+            gap: 8px;
+            padding: 8px;
             width: max-content;
         }
 
@@ -96,7 +96,7 @@
             display: grid !important;
             grid-template-columns: repeat(2, 1fr); 
             width: 100% !important;
-            max-width: 500px;
+            max-width: 450px;
         }
 
         .mode-landscape { 
@@ -111,16 +111,17 @@
             border-radius: 4px;
         }
 
-        .mode-portrait .img-item { width: 100%; height: auto; min-height: 150px; }
-        .mode-landscape .img-item { height: 450px; width: auto; }
+        .mode-portrait .img-item { width: 100%; height: auto; min-height: 120px; }
+        .mode-landscape .img-item { height: 400px; width: auto; }
 
         .nav-pills .nav-link {
-            border-radius: 12px;
+            border-radius: 10px;
             font-weight: 600;
+            font-size: 0.85rem;
             color: #64748b;
             border: 1px solid #e2e8f0;
-            margin: 0 5px;
-            padding: 10px;
+            margin: 0 4px;
+            padding: 8px;
         }
 
         .nav-pills .nav-link.active { background-color: var(--primary-color); }
@@ -129,23 +130,45 @@
             background: var(--success-color); 
             color: white; 
             font-weight: 700; 
-            padding: 16px; 
+            padding: 14px; 
             border: none; 
-            border-radius: 12px; 
+            border-radius: 10px; 
             width: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            gap: 8px;
+            transition: transform 0.1s;
+        }
+
+        .download-btn:active { transform: scale(0.98); }
+
+        /* Toast Styling */
+        .toast-container { z-index: 2000; }
+        .custom-toast {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            font-size: 0.85rem;
         }
     </style>
 </head>
 <body>
 
+<div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3">
+    <div id="limitToast" class="toast custom-toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="bi bi-exclamation-circle me-2"></i> Maksimal pilih 4 foto saja!
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
 <div class="card main-card p-4">
     <div class="header-title text-uppercase">Collage Maker</div>
-    <span class="version-text">Versi 1.0.0</span>
+    <span class="version-text">Versi 1.0.1</span>
     
     <ul class="nav nav-pills nav-fill mb-4">
         <li class="nav-item">
@@ -178,9 +201,9 @@
 
     <div class="pt-2">
         <div class="input-group mb-3 shadow-sm">
-            <span class="input-group-text bg-white"><i class="bi bi-file-earmark-image"></i></span>
-            <select id="format" class="form-select fw-semibold">
-                <option value="image/jpeg">JPEG (Kecil & EXIF Ready)</option>
+            <span class="input-group-text bg-white border-end-0"><i class="bi bi-file-earmark-image"></i></span>
+            <select id="format" class="form-select fw-semibold border-start-0 shadow-none">
+                <option value="image/jpeg">JPEG (Kecil)</option>
                 <option value="image/png">PNG (Kualitas Tinggi)</option>
             </select>
         </div>
@@ -191,6 +214,7 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <script>
@@ -198,10 +222,11 @@
     const collageArea = document.getElementById('collage-area');
     const fileNameDisplay = document.getElementById('file-name-display');
     const exportBtn = document.getElementById('exportBtn');
-    let currentMode = 'mode-portrait';
+    
+    // Inisialisasi Toast
+    const limitToast = new bootstrap.Toast(document.getElementById('limitToast'), { delay: 3000 });
 
     function setMode(mode, btn) {
-        currentMode = mode;
         document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         collageArea.className = mode;
@@ -212,8 +237,9 @@
 
     function render() {
         const files = Array.from(fileInput.files);
+        
         if (files.length > 4) {
-            alert("Maksimal 4 foto!");
+            limitToast.show(); // Tampilkan notifikasi modern
             fileInput.value = "";
             fileNameDisplay.innerHTML = "Pilih Maksimal 4 Foto";
             return;
@@ -240,7 +266,7 @@
     exportBtn.onclick = async () => {
         if (collageArea.querySelectorAll('img').length === 0) return;
 
-        exportBtn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> PROSES...`;
+        exportBtn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> MEMPROSES...`;
         exportBtn.disabled = true;
 
         const format = document.getElementById('format').value;
@@ -249,17 +275,15 @@
         const canvas = await html2canvas(collageArea, { 
             scale: 2, 
             useCORS: true,
-            backgroundColor: "#ffffff",
-            width: collageArea.scrollWidth,
-            height: collageArea.scrollHeight
+            backgroundColor: "#ffffff"
         });
 
         const n = new Date();
         const timestamp = `${n.getFullYear()}${String(n.getDate()).padStart(2,'0')}${String(n.getMonth()+1).padStart(2,'0')}_${String(n.getHours()).padStart(2,'0')}${String(n.getMinutes()).padStart(2,'0')}${String(n.getSeconds()).padStart(2,'0')}`;
         
         const link = document.createElement('a');
-        link.download = `${timestamp}.${ext}`;
-        link.href = canvas.toDataURL(format, 0.7); 
+        link.download = `collage_${timestamp}.${ext}`;
+        link.href = canvas.toDataURL(format, 0.8); 
         link.click();
 
         exportBtn.innerHTML = `<i class="bi bi-download"></i> DOWNLOAD`;
