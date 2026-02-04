@@ -48,6 +48,39 @@
             margin-bottom: 20px;
         }
 
+        /* Perbaikan Tombol: Sama Lebar 50/50 */
+        .nav-pills {
+            display: flex;
+            width: 100%;
+            gap: 10px;
+        }
+
+        .nav-pills .nav-item {
+            flex: 1;
+        }
+
+        .nav-pills .nav-link {
+            width: 100%;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+            padding: 12px 5px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .nav-pills .nav-link.active { 
+            background-color: var(--primary-color); 
+            color: white;
+            border-color: var(--primary-color);
+        }
+
         .custom-file-upload {
             border: 2px dashed #cbd5e1;
             padding: 20px;
@@ -92,7 +125,6 @@
             width: max-content;
         }
 
-        /* Container untuk Image + Tombol X */
         .img-wrapper {
             position: relative;
             display: inline-block;
@@ -115,11 +147,9 @@
             cursor: pointer;
             z-index: 10;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            transition: transform 0.1s;
         }
 
-        .btn-remove:hover { transform: scale(1.1); background: #dc2626; }
-
+        /* Layout Modes */
         .mode-portrait { 
             display: grid !important;
             grid-template-columns: repeat(2, 1fr); 
@@ -141,20 +171,8 @@
         }
 
         .mode-portrait .img-item { min-height: 120px; }
-        .mode-landscape .img-item { height: 400px; width: auto; }
-        .mode-landscape .img-wrapper { height: 400px; }
-
-        .nav-pills .nav-link {
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: #64748b;
-            border: 1px solid #e2e8f0;
-            margin: 0 4px;
-            padding: 8px;
-        }
-
-        .nav-pills .nav-link.active { background-color: var(--primary-color); }
+        .mode-landscape .img-item { height: 350px; width: auto; }
+        .mode-landscape .img-wrapper { height: 350px; }
 
         .download-btn { 
             background: var(--success-color); 
@@ -168,9 +186,9 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            text-transform: uppercase;
         }
 
-        /* Toast Styling */
         .toast-container { z-index: 2000; }
     </style>
 </head>
@@ -189,17 +207,17 @@
 
 <div class="card main-card p-4">
     <div class="header-title text-uppercase">Collage Maker</div>
-    <span class="version-text">Versi 1.0.2</span>
+    <span class="version-text">Versi 1.0.4</span>
     
-    <ul class="nav nav-pills nav-fill mb-4">
+    <ul class="nav nav-pills mb-4">
         <li class="nav-item">
             <button class="nav-link active" onclick="setMode('mode-landscape', this)">
-                <i class="bi bi-phone-landscape"></i> LANDSCAPE
+                <i class="bi bi-phone-landscape"></i> Landscape
             </button>
         </li>
         <li class="nav-item">
-            <button class="nav-link" onclick="setMode('mode-potrait', this)">
-                <i class="bi bi-phone"></i> POTRAIT
+            <button class="nav-link" onclick="setMode('mode-portrait', this)">
+                <i class="bi bi-phone"></i> Portrait
             </button>
         </li>
     </ul>
@@ -213,8 +231,8 @@
     </div>
 
     <div class="preview-scroll-container mb-4">
-        <div id="collage-area" class="mode-portrait">
-            <div class="text-muted py-5 text-center w-100 placeholder-text" style="grid-column: span 2;">
+        <div id="collage-area" class="mode-landscape">
+            <div class="text-muted py-5 text-center w-100 placeholder-text">
                 <small>Foto akan muncul di sini</small>
             </div>
         </div>
@@ -229,7 +247,7 @@
             </select>
         </div>
         
-        <button id="exportBtn" class="download-btn text-uppercase">
+        <button id="exportBtn" class="download-btn">
             <i class="bi bi-download"></i> Download
         </button>
     </div>
@@ -244,13 +262,17 @@
     const fileNameDisplay = document.getElementById('file-name-display');
     const exportBtn = document.getElementById('exportBtn');
     
-    let selectedImages = []; // Array untuk menyimpan data gambar secara dinamis
+    let selectedImages = [];
     const limitToast = new bootstrap.Toast(document.getElementById('limitToast'), { delay: 3000 });
 
     function setMode(mode, btn) {
         document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
+        
+        // Ubah class container agar sesuai mode terpilih
         collageArea.className = mode;
+        
+        // Render ulang untuk memastikan ukuran gambar menyesuaikan mode baru
         updateView();
     }
 
@@ -271,7 +293,7 @@
             };
             reader.readAsDataURL(file);
         });
-        fileInput.value = ""; // Reset input agar bisa pilih file yang sama jika perlu
+        fileInput.value = "";
     };
 
     function removeImage(index) {
@@ -283,7 +305,7 @@
         collageArea.innerHTML = '';
         
         if (selectedImages.length === 0) {
-            collageArea.innerHTML = `<div class="text-muted py-5 text-center w-100" style="grid-column: span 2;"><small>Foto akan muncul di sini</small></div>`;
+            collageArea.innerHTML = `<div class="text-muted py-5 text-center w-100"><small>Foto akan muncul di sini</small></div>`;
             fileNameDisplay.innerHTML = "Pilih Maksimal 4 Foto";
             return;
         }
@@ -307,7 +329,6 @@
     exportBtn.onclick = async () => {
         if (selectedImages.length === 0) return;
 
-        // Sembunyikan semua tombol X sebelum difoto
         const removeButtons = document.querySelectorAll('.btn-remove');
         removeButtons.forEach(btn => btn.style.display = 'none');
 
@@ -335,7 +356,6 @@
             console.error(err);
         }
 
-        // Munculkan kembali tombol X setelah download selesai
         removeButtons.forEach(btn => btn.style.display = 'flex');
         exportBtn.innerHTML = `<i class="bi bi-download"></i> DOWNLOAD`;
         exportBtn.disabled = false;
