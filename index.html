@@ -12,57 +12,40 @@
         :root { --primary-color: #4f46e5; --bg-color: #f8fafc; --success-color: #10b981; }
         body { background-color: var(--bg-color); padding: 15px; font-family: 'Inter', sans-serif; }
         .main-card { max-width: 500px; margin: auto; border-radius: 20px; border: none; background: white; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
-        .header-title { font-weight: 800; font-size: 1.3rem; text-align: center; color: #0f172a; text-transform: uppercase; }
+        .header-title { font-weight: 800; font-size: 1.3rem; text-align: center; color: #0f172a; }
         .version-text { display: block; text-align: center; font-size: 0.7rem; color: #94a3b8; font-weight: 600; margin-bottom: 20px; }
 
-        /* Navigasi */
-        .nav-pills { display: flex; width: 100%; gap: 10px; }
-        .nav-pills .nav-item { flex: 1; }
-        .nav-pills .nav-link {
-            width: 100%; border-radius: 12px; font-weight: 700; font-size: 0.8rem;
-            color: #64748b; border: 1px solid #e2e8f0; padding: 12px 5px;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
+        .nav-pills .nav-link { width: 100%; border-radius: 12px; font-weight: 700; font-size: 0.8rem; color: #64748b; border: 1px solid #e2e8f0; padding: 12px 5px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .nav-pills .nav-link.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); }
 
         .custom-file-upload { border: 2px dashed #cbd5e1; padding: 20px; cursor: pointer; width: 100%; border-radius: 12px; text-align: center; background: #f8fafc; }
 
-        /* Container Preview */
-        .preview-scroll-container {
-            width: 100%; background: #f1f5f9; padding: 15px; border-radius: 12px;
-            margin-top: 15px; display: flex; justify-content: center;
-            border: 1px solid #e2e8f0; overflow-x: auto; min-height: 250px;
-        }
-
+        .preview-scroll-container { width: 100%; background: #f1f5f9; padding: 15px; border-radius: 12px; margin-top: 15px; display: flex; justify-content: center; border: 1px solid #e2e8f0; overflow-x: auto; min-height: 250px; }
         #collage-area { background: #ffffff; padding: 10px; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
 
-        /* Placeholder */
         .is-empty { width: 100% !important; max-width: 350px !important; height: 200px !important; display: flex !important; align-items: center !important; justify-content: center !important; }
-
-        /* Layout HD */
         .mode-portrait:not(.is-empty) { display: grid !important; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 320px !important; }
         .mode-landscape:not(.is-empty) { display: flex !important; flex-direction: row !important; gap: 10px; width: auto !important; }
 
         .img-wrapper { position: relative; display: inline-block; }
         .btn-remove { position: absolute; top: 5px; right: 5px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 12px; z-index: 10; }
-
         .img-item { display: block; object-fit: cover; background: #eee; border-radius: 2px; }
         .mode-portrait .img-item { width: 150px; height: 200px; }
         .mode-landscape .img-item { height: 300px; width: 220px; }
 
-        .placeholder-box { color: #94a3b8; font-weight: 500; }
-        .download-btn { background: var(--success-color); color: white; font-weight: 700; padding: 14px; border: none; border-radius: 10px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .download-btn { background: var(--success-color); color: white; font-weight: 700; padding: 14px; border: none; border-radius: 10px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.3s; }
+        .refresh-btn { background: #64748b; color: white; font-weight: 700; padding: 10px; border: none; border-radius: 10px; width: 100%; margin-top: 10px; display: none; align-items: center; justify-content: center; gap: 8px; text-transform: uppercase; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
 <div class="card main-card p-4">
-    <div class="header-title">Collage Maker HD</div>
-    <span class="version-text">Versi 1.0.8 </span>
+    <div class="header-title text-uppercase">Collage Maker</div>
+    <span class="version-text">Versi 1.1.0</span>
     
-    <ul class="nav nav-pills mb-4">
-        <li class="nav-item"><button class="nav-link active" onclick="setMode('mode-landscape', this)"><i class="bi bi-phone-landscape"></i> Landscape</button></li>
-        <li class="nav-item"><button class="nav-link" onclick="setMode('mode-portrait', this)"><i class="bi bi-phone"></i> Portrait</button></li>
+    <ul class="nav nav-pills mb-4 gap-2">
+        <li class="nav-item flex-fill"><button class="nav-link active" onclick="setMode('mode-landscape', this)"><i class="bi bi-phone-landscape"></i> Landscape</button></li>
+        <li class="nav-item flex-fill"><button class="nav-link" onclick="setMode('mode-portrait', this)"><i class="bi bi-phone"></i> Portrait</button></li>
     </ul>
 
     <div class="mb-3">
@@ -75,28 +58,27 @@
 
     <div class="preview-scroll-container mb-4">
         <div id="collage-area" class="mode-landscape is-empty">
-            <div class="placeholder-box"><small>Foto akan muncul di sini</small></div>
+            <div class="text-muted"><small>Foto akan muncul di sini</small></div>
         </div>
     </div>
 
-    <button id="exportBtn" class="download-btn text-uppercase"><i class="bi bi-download"></i> Download </button>
+    <button id="exportBtn" class="download-btn text-uppercase"><i class="bi bi-download"></i> Download</button>
+    <button id="refreshBtn" class="refresh-btn" onclick="resetApp()"><i class="bi bi-arrow-clockwise"></i> Refresh Aplikasi</button>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <script>
     const fileInput = document.getElementById('fileInput');
     const collageArea = document.getElementById('collage-area');
-    const fileNameDisplay = document.getElementById('file-name-display');
     const exportBtn = document.getElementById('exportBtn');
+    const refreshBtn = document.getElementById('refreshBtn');
     let selectedImages = [];
 
     function setMode(mode, btn) {
         document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        const emptyClass = selectedImages.length === 0 ? ' is-empty' : '';
-        collageArea.className = mode + emptyClass;
+        collageArea.className = mode + (selectedImages.length === 0 ? ' is-empty' : '');
         updateView();
     }
 
@@ -115,7 +97,7 @@
         collageArea.innerHTML = '';
         if (selectedImages.length === 0) {
             collageArea.classList.add('is-empty');
-            collageArea.innerHTML = '<div class="placeholder-box"><small>Foto akan muncul di sini</small></div>';
+            collageArea.innerHTML = '<div class="text-muted"><small>Foto akan muncul di sini</small></div>';
             return;
         }
         collageArea.classList.remove('is-empty');
@@ -129,29 +111,35 @@
 
     function removeImage(index) { selectedImages.splice(index, 1); updateView(); }
 
+    function resetApp() {
+        selectedImages = [];
+        updateView();
+        exportBtn.innerHTML = `<i class="bi bi-download"></i> DOWNLOAD`;
+        exportBtn.disabled = false;
+        refreshBtn.style.display = 'none';
+        exportBtn.style.backgroundColor = '#10b981';
+    }
+
     exportBtn.onclick = async () => {
         if (selectedImages.length === 0) return;
         document.querySelectorAll('.btn-remove').forEach(btn => btn.style.display = 'none');
-        exportBtn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> PROSES HD...`;
+        exportBtn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> PROSES...`;
+        exportBtn.disabled = true;
         
         try {
-            // SCALE 5 agar resolusi akhir mencapai ~3000-4000 pixel
-            const canvas = await html2canvas(collageArea, { 
-                scale: 5, 
-                useCORS: true, 
-                backgroundColor: "#ffffff",
-                imageTimeout: 0
-            });
-
+            const canvas = await html2canvas(collageArea, { scale: 5, useCORS: true });
             const link = document.createElement('a');
-            link.download = `Laporan_HD_${Date.now()}.jpg`;
-            // Kualitas 1.0 (Maksimal) untuk menjaga ukuran file tetap besar/padat
+            link.download = `Collage_${Date.now()}.jpg`;
             link.href = canvas.toDataURL("image/jpeg", 1.0); 
             link.click();
-        } catch (err) { console.error(err); }
 
+            // Ubah tombol saat selesai
+            exportBtn.innerHTML = `<i class="bi bi-check-circle"></i> DOWNLOAD SELESAI`;
+            exportBtn.style.backgroundColor = '#6366f1'; 
+            refreshBtn.style.display = 'flex'; // Munculkan tombol Refresh
+        } catch (err) { console.error(err); }
+        
         document.querySelectorAll('.btn-remove').forEach(btn => btn.style.display = 'flex');
-        exportBtn.innerHTML = `<i class="bi bi-download"></i> SIMPAN HD (1-2MB)`;
     };
 </script>
 </body>
