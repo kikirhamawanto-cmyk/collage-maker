@@ -94,7 +94,8 @@
             display: flex;
             justify-content: center;
             border: 1px solid #e2e8f0;
-            overflow-x: auto; /* Scroll hanya muncul jika konten meluap */
+            overflow-x: auto;
+            min-height: 250px;
         }
 
         #collage-area {
@@ -104,26 +105,31 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease;
         }
 
-        /* Mode Portrait: Manjang ke bawah (Gambar 1 Fix) */
-        .mode-portrait { 
+        /* FIX: Tampilan Placeholder Konsisten (Sesuai Gambar User) */
+        .is-empty {
+            width: 100% !important;
+            max-width: 350px !important;
+            height: 200px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        /* --- Logika Layout Saat Ada Foto --- */
+        .mode-portrait:not(.is-empty) { 
             display: grid !important;
             grid-template-columns: repeat(2, 1fr); 
             gap: 8px;
-            width: 280px !important; /* Dibatasi lebar agar manjang ke bawah */
-            min-height: 300px;
+            width: 280px !important; 
         }
 
-        /* Mode Landscape: Manjang ke samping (Gambar 2 Fix) */
-        .mode-landscape { 
+        .mode-landscape:not(.is-empty) { 
             display: flex !important;
             flex-direction: row !important;
             gap: 8px;
             width: auto !important; 
-            max-width: 100%; /* Cegah scroll saat kosong */
-            min-height: 150px;
         }
 
         .img-wrapper { position: relative; display: inline-block; }
@@ -144,20 +150,12 @@
             border-radius: 2px;
         }
 
-        /* Ukuran Gambar */
         .mode-portrait .img-item { width: 100%; height: 160px; }
         .mode-landscape .img-item { height: 200px; width: 150px; }
 
-        /* Placeholder agar selalu di tengah */
         .placeholder-box {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            width: 100%;
-            height: 100%;
             color: #94a3b8;
-            padding: 40px 20px;
+            font-weight: 500;
         }
 
         .download-btn { 
@@ -171,7 +169,7 @@
 <body>
 
 <div id="limitToast" class="toast-container position-fixed top-0 start-50 translate-middle-x p-3" style="z-index: 2000;">
-    <div class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast align-items-center text-white bg-danger border-0" role="alert">
         <div class="d-flex">
             <div class="toast-body">Maksimal 4 foto!</div>
             <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
@@ -181,7 +179,7 @@
 
 <div class="card main-card p-4">
     <div class="header-title">COLLAGE MAKER</div>
-    <span class="version-text">Versi 1.0.6</span>
+    <span class="version-text">Versi 1.0.7</span>
     
     <ul class="nav nav-pills mb-4">
         <li class="nav-item">
@@ -205,7 +203,7 @@
     </div>
 
     <div class="preview-scroll-container mb-4">
-        <div id="collage-area" class="mode-landscape">
+        <div id="collage-area" class="mode-landscape is-empty">
             <div class="placeholder-box">
                 <small>Foto akan muncul di sini</small>
             </div>
@@ -239,7 +237,10 @@
     function setMode(mode, btn) {
         document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        collageArea.className = mode;
+        
+        // Simpan class is-empty jika memang masih kosong
+        const emptyClass = selectedImages.length === 0 ? ' is-empty' : '';
+        collageArea.className = mode + emptyClass;
         updateView();
     }
 
@@ -267,13 +268,18 @@
 
     function updateView() {
         collageArea.innerHTML = '';
+        
         if (selectedImages.length === 0) {
+            collageArea.classList.add('is-empty');
             collageArea.innerHTML = '<div class="placeholder-box"><small>Foto akan muncul di sini</small></div>';
             fileNameDisplay.innerText = "Pilih Maksimal 4 Foto";
             return;
         }
 
+        // Lepas class is-empty agar layout portrait/landscape aktif
+        collageArea.classList.remove('is-empty');
         fileNameDisplay.innerHTML = `Total: ${selectedImages.length} Foto`;
+        
         selectedImages.forEach((src, index) => {
             const wrapper = document.createElement('div');
             wrapper.className = 'img-wrapper';
