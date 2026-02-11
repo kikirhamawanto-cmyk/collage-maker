@@ -34,7 +34,6 @@
             padding-bottom: 30px !important;
         }
 
-        /* Credits Section */
         .app-credits {
             display: flex;
             flex-direction: column;
@@ -71,7 +70,6 @@
             font-weight: 600; 
         }
 
-        /* Metadata & Map */
         .meta-section { 
             background: #f1f5f9; 
             border-radius: 12px; 
@@ -106,7 +104,6 @@
             background: white; 
         }
 
-        /* Preview Area */
         .preview-scroll-container { 
             width: 100%; 
             background: #f1f5f9; 
@@ -132,7 +129,6 @@
         .mode-portrait .img-item { width: 150px; height: 200px; }
         .mode-landscape .img-item { height: 300px; width: 220px; }
 
-        /* Buttons */
         .mode-selector { display: flex; background: #e2e8f0; padding: 4px; border-radius: 12px; margin-bottom: 20px; gap: 4px; }
         .btn-mode { flex: 1; border: none; background: transparent; padding: 10px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; color: #64748b; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-mode.active { background: white; color: var(--primary-color); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
@@ -151,7 +147,7 @@
 
     <div class="header-section">
         <div class="header-title text-uppercase">Collage Maker</div>
-        <span class="version-text">Versi 1.2.7 (Address Detection)</span>
+        <span class="version-text">Versi 1.2.7 (HD Export & Auto-Naming)</span>
     </div>
     
     <div class="meta-section">
@@ -223,8 +219,8 @@
         </div>
     </div>
 
-    <button id="exportBtn" class="download-btn"><i class="bi bi-download"></i> Download</button>
-    <button id="refreshBtn" class="refresh-btn" onclick="resetApp()"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+    <button id="exportBtn" class="download-btn"><i class="bi bi-download"></i> Download JPEG</button>
+    <button id="refreshBtn" class="refresh-btn" onclick="resetApp()"><i class="bi bi-arrow-clockwise"></i> Mulai Ulang</button>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -232,76 +228,58 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-    // 1. Inisialisasi Peta (Default Jakarta sebelum GPS aktif)
     const map = L.map('map').setView([-6.2000, 106.8166], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     const marker = L.marker([-6.2000, 106.8166], {draggable: true}).addTo(map);
 
-    // Variabel kontrol untuk sinkronisasi alamat
     let lastLat = 0;
     let lastLon = 0;
     let addressTimeout = null;
 
-    // Fungsi mengambil alamat dari API Nominatim
     async function getAddress(lat, lon) {
-        // Jangan jalankan jika koordinat tidak berubah signifikan
         if (lat.toFixed(6) === lastLat.toFixed(6) && lon.toFixed(6) === lastLon.toFixed(6)) return;
         
         const addrBox = document.getElementById('meta-address');
         addrBox.value = "📍 Sedang sinkronisasi titik baru...";
 
-        // Zoom 21 untuk akurasi maksimal & Cache Buster agar data tidak nyangkut
         const randomStr = Math.random().toString(36).substring(7);
         const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&zoom=21&addressdetails=1&cb=${randomStr}`;
 
         try {
-            const response = await fetch(url, {
-                headers: { 'Accept-Language': 'id' }
-            });
-            
+            const response = await fetch(url, { headers: { 'Accept-Language': 'id' } });
             if (!response.ok) throw new Error('Limit');
             const data = await response.json();
             
             if (data && data.display_name) {
-                // Update tampilan alamat
                 addrBox.value = data.display_name;
                 lastLat = lat;
                 lastLon = lon;
-            } else {
-                addrBox.value = "Alamat spesifik tidak ditemukan di database.";
             }
         } catch (error) {
-            addrBox.value = "Koneksi sibuk. Alamat otomatis gagal dimuat.";
-            console.error(error);
+            addrBox.value = "Koneksi sibuk. Koordinat tetap tercatat.";
         }
     }
 
-    // Fungsi Update Koordinat (Fungsi Utama untuk EXIF)
     function updateCoords(lat, lon) {
-        // Update input angka secara instan (ini yang masuk ke EXIF foto)
         document.getElementById('meta-lat').value = lat.toFixed(6);
         document.getElementById('meta-lon').value = lon.toFixed(6);
         
-        // Debounce 500ms untuk pencarian alamat agar tidak spam API
         clearTimeout(addressTimeout);
         addressTimeout = setTimeout(() => {
             getAddress(lat, lon);
         }, 500);
     }
 
-    // Listener: Saat Pin di-drag dan dilepas
     marker.on('dragend', function(e) {
         const p = e.target.getLatLng();
         updateCoords(p.lat, p.lng);
     });
 
-    // Listener: Saat Peta diklik di titik tertentu
     map.on('click', function(e) {
         marker.setLatLng(e.latlng);
         updateCoords(e.latlng.lat, e.latlng.lng);
     });
 
-    // Deteksi Lokasi Awal menggunakan GPS Perangkat
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(p => {
             const lat = p.coords.latitude; 
@@ -310,12 +288,10 @@
             marker.setLatLng([lat, lon]); 
             updateCoords(lat, lon);
         }, () => {
-            // Default jika GPS ditolak
             updateCoords(-6.2000, 106.8166);
         });
     }
 
-    // --- LOGIKA GAMBAR & EXPORT ---
     const fileInput = document.getElementById('fileInput');
     const collageArea = document.getElementById('collage-area');
     const exportBtn = document.getElementById('exportBtn');
@@ -324,7 +300,6 @@
     const devicePreset = document.getElementById('device-preset');
     let selectedImages = [];
 
-    // Mengatur Mode Tampilan Collage
     function setMode(mode, btn) {
         document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
@@ -332,7 +307,6 @@
         updateView();
     }
 
-    // Input File Foto
     fileInput.onchange = function() {
         const files = Array.from(fileInput.files);
         if (selectedImages.length + files.length > 4) {
@@ -349,7 +323,6 @@
         });
     };
 
-    // Update Tampilan Collage di Layar
     function updateView() {
         collageArea.innerHTML = '';
         if (selectedImages.length === 0) {
@@ -371,18 +344,15 @@
         fileNameDisplay.innerText = `${selectedImages.length} Foto terpilih`;
     }
 
-    // Hapus Foto dari Daftar
     function removeImage(index) { 
         selectedImages.splice(index, 1); 
         updateView(); 
     }
 
-    // Refresh Aplikasi
     function resetApp() { 
         location.reload(); 
     }
 
-    // Konversi Desimal ke Format GPS EXIF
     function DegToExif(deg) {
         const abs = Math.abs(deg); 
         const d = Math.floor(abs);
@@ -392,16 +362,14 @@
         return [[d, 1], [m, 1], [s, 100]];
     }
 
-    // Fungsi Export ke JPEG dengan Metadata EXIF
     exportBtn.onclick = async () => {
         if (selectedImages.length === 0) return;
         
         document.querySelectorAll('.btn-remove').forEach(b => b.style.display = 'none');
-        exportBtn.innerHTML = `MENGOLAH...`; 
+        exportBtn.innerHTML = `MENGOLAH HD...`; 
         exportBtn.disabled = true;
         
         try {
-            // 1. NAIKKAN SCALE ke 5 atau 6 untuk detail lebih tajam & file lebih besar
             const canvas = await html2canvas(collageArea, { 
                 scale: 5, 
                 useCORS: true,
@@ -409,21 +377,17 @@
                 backgroundColor: "#ffffff" 
             });
 
-            // 2. SET QUALITY ke 1.0 (Tanpa Kompresi)
             let jpegData = canvas.toDataURL("image/jpeg", 1.0); 
             
             const now = new Date();
-            
-            // 3. FORMAT NAMA FILE mirip kamera asli (Contoh: 20240520_143005.jpg)
             const year = now.getFullYear();
             const month = ("0" + (now.getMonth() + 1)).slice(-2);
             const day = ("0" + now.getDate()).slice(-2);
             const hours = ("0" + now.getHours()).slice(-2);
             const minutes = ("0" + now.getMinutes()).slice(-2);
             const seconds = ("0" + now.getSeconds()).slice(-2);
-            const fileName = `2024${month}${day}_${hours}${minutes}${seconds}.jpg`;
-
-            // Format Tanggal untuk EXIF
+            
+            const fileName = `${year}${month}${day}_${hours}${minutes}${seconds}.jpg`;
             const dateExif = `${year}:${month}:${day} ${hours}:${minutes}:${seconds}`;
             
             const opt = devicePreset.options[devicePreset.selectedIndex];
@@ -451,16 +415,16 @@
             jpegData = piexif.insert(exifBytes, jpegData);
             
             const link = document.createElement('a');
-            link.download = fileName; // Menggunakan nama file format tanggal
+            link.download = fileName;
             link.href = jpegData; 
             link.click();
             
-            exportBtn.innerHTML = `SELESAI!`; 
+            exportBtn.innerHTML = `BERHASIL!`; 
             refreshBtn.style.display = 'flex';
         } catch (e) { 
             alert("Gagal mengolah gambar"); 
             exportBtn.disabled = false; 
-            exportBtn.innerHTML = `EXPORT KE JPEG`;
+            exportBtn.innerHTML = `DOWNLOAD JPEG`;
         }
         
         document.querySelectorAll('.btn-remove').forEach(b => b.style.display = 'flex');
