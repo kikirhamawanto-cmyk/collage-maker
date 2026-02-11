@@ -3,55 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Collage Maker</title>
+    <title>Collage Maker Pro HD - Samsung Edition v1.2.7</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
     <style>
-        :root { --primary-color: #4f46e5; --bg-color: #f8fafc; --success-color: #10b981; }
-        body { background-color: var(--bg-color); padding: 15px; font-family: 'Inter', sans-serif; }
-        .main-card { max-width: 500px; margin: auto; border-radius: 20px; border: none; background: white; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
-        .header-title { font-weight: 800; font-size: 1.3rem; text-align: center; color: #0f172a; }
-        .version-text { display: block; text-align: center; font-size: 0.7rem; color: #94a3b8; font-weight: 600; margin-bottom: 20px; }
+        :root { 
+            --primary-color: #4f46e5; 
+            --bg-color: #f8fafc; 
+            --success-color: #10b981; 
+        }
 
-        .nav-pills .nav-link { width: 100%; border-radius: 12px; font-weight: 700; font-size: 0.8rem; color: #64748b; border: 1px solid #e2e8f0; padding: 12px 5px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .nav-pills .nav-link.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); }
+        body { 
+            background-color: var(--bg-color); 
+            padding: 20px 15px; 
+            font-family: 'Inter', sans-serif; 
+        }
 
-        .custom-file-upload { border: 2px dashed #cbd5e1; padding: 20px; cursor: pointer; width: 100%; border-radius: 12px; text-align: center; background: #f8fafc; }
+        .main-card { 
+            max-width: 500px; 
+            margin: auto; 
+            border-radius: 20px; 
+            border: none; 
+            background: white; 
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); 
+            position: relative;
+            padding-bottom: 30px !important;
+        }
 
-        .preview-scroll-container { width: 100%; background: #f1f5f9; padding: 15px; border-radius: 12px; margin-top: 15px; display: flex; justify-content: center; border: 1px solid #e2e8f0; overflow-x: auto; min-height: 250px; }
-        #collage-area { background: #ffffff; padding: 10px; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+        /* Credits Section */
+        .app-credits {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            font-size: 0.65rem;
+            color: #94a3b8;
+            margin-bottom: 10px;
+        }
 
-        .is-empty { width: 100% !important; max-width: 350px !important; height: 200px !important; display: flex !important; align-items: center !important; justify-content: center !important; }
+        .credit-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .bi-bootstrap-fill { color: #7952b3 !important; }
+        .bi-heart-fill { color: #ff0000 !important; }
+
+        .header-section {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .header-title { 
+            font-weight: 800; 
+            font-size: 1.3rem; 
+            color: #0f172a; 
+            margin: 0;
+        }
+
+        .version-text { 
+            font-size: 0.7rem; 
+            color: #94a3b8; 
+            font-weight: 600; 
+        }
+
+        /* Metadata & Map */
+        .meta-section { 
+            background: #f1f5f9; 
+            border-radius: 12px; 
+            padding: 15px; 
+            margin-bottom: 15px; 
+        }
+
+        #map { 
+            height: 160px; 
+            width: 100%; 
+            border-radius: 10px; 
+            margin-top: 10px; 
+            border: 1px solid #cbd5e1; 
+            z-index: 1;
+        }
+
+        .meta-label { 
+            font-size: 0.65rem; 
+            font-weight: 800; 
+            color: #475569; 
+            text-transform: uppercase; 
+            margin-bottom: 3px; 
+            display: block;
+        }
+
+        .meta-select, .meta-input {
+            width: 100%; 
+            border: 1px solid #cbd5e1; 
+            border-radius: 8px; 
+            padding: 6px 10px; 
+            font-size: 0.8rem; 
+            background: white; 
+        }
+
+        /* Preview Area */
+        .preview-scroll-container { 
+            width: 100%; 
+            background: #f1f5f9; 
+            padding: 15px; 
+            border-radius: 12px; 
+            margin-top: 15px; 
+            display: flex; 
+            justify-content: center; 
+            border: 1px solid #e2e8f0; 
+            overflow-x: auto; 
+            min-height: 250px; 
+        }
+
+        #collage-area { background: white; padding: 10px; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+        .is-empty { width: 100% !important; max-width: 350px !important; height: 200px !important; }
+
         .mode-portrait:not(.is-empty) { display: grid !important; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 320px !important; }
         .mode-landscape:not(.is-empty) { display: flex !important; flex-direction: row !important; gap: 10px; width: auto !important; }
 
-        .img-wrapper { position: relative; display: inline-block; }
-        .btn-remove { position: absolute; top: 5px; right: 5px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 12px; z-index: 10; }
+        .img-wrapper { position: relative; }
+        .btn-remove { position: absolute; top: 5px; right: 5px; background: rgba(239,68,68,0.9); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 12px; z-index: 10; display: flex; align-items: center; justify-content: center; }
         .img-item { display: block; object-fit: cover; background: #eee; border-radius: 2px; }
         .mode-portrait .img-item { width: 150px; height: 200px; }
         .mode-landscape .img-item { height: 300px; width: 220px; }
 
-        .download-btn { background: var(--success-color); color: white; font-weight: 700; padding: 14px; border: none; border-radius: 10px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.3s; }
+        /* Buttons */
+        .mode-selector { display: flex; background: #e2e8f0; padding: 4px; border-radius: 12px; margin-bottom: 20px; gap: 4px; }
+        .btn-mode { flex: 1; border: none; background: transparent; padding: 10px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; color: #64748b; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-mode.active { background: white; color: var(--primary-color); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .download-btn { background: var(--success-color); color: white; font-weight: 700; padding: 14px; border: none; border-radius: 10px; width: 100%; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .refresh-btn { background: #64748b; color: white; font-weight: 700; padding: 10px; border: none; border-radius: 10px; width: 100%; margin-top: 10px; display: none; align-items: center; justify-content: center; gap: 8px; text-transform: uppercase; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
 <div class="card main-card p-4">
-    <div class="header-title text-uppercase">Collage Maker</div>
-    <span class="version-text">Versi 1.1.1</span>
+    <div class="app-credits">
+        <div class="credit-item">
+            <span>Powered by</span> <i class="bi bi-bootstrap-fill"></i> & <i class="bi bi-heart-fill"></i>
+        </div>
+    </div>
+
+    <div class="header-section">
+        <div class="header-title text-uppercase">Collage Maker</div>
+        <span class="version-text">Versi 1.2.7 (Address Detection)</span>
+    </div>
     
-    <ul class="nav nav-pills mb-4 gap-2">
-        <li class="nav-item flex-fill"><button class="nav-link active" onclick="setMode('mode-landscape', this)"><i class="bi bi-phone-landscape"></i> Landscape</button></li>
-        <li class="nav-item flex-fill"><button class="nav-link" onclick="setMode('mode-portrait', this)"><i class="bi bi-phone"></i> Portrait</button></li>
-    </ul>
+    <div class="meta-section">
+        <div class="row g-2 mb-2">
+            <div class="col-12">
+                <label class="meta-label">Model Perangkat</label>
+                <select id="device-preset" class="meta-select">
+                    <option value="m30" data-model="SM-M305M" data-soft="M305MUBS8CVB1">Samsung SM-M305M</option>
+                    <option value="a17" data-model="Galaxy A17 5G" data-soft="A176BXXU3BYK3">Samsung Galaxy A17 5G</option>
+                </select>
+            </div>
+            <div class="col-4">
+                <label class="meta-label">Aperture</label>
+                <select id="meta-f" class="meta-select">
+                    <option value="1.8">f/1.8</option>
+                    <option value="2.0">f/2.0</option>
+                    <option value="2.2">f/2.2</option>
+                </select>
+            </div>
+            <div class="col-4">
+                <label class="meta-label">ISO</label>
+                <select id="meta-iso" class="meta-select">
+                    <option value="100" selected>100</option>
+                    <option value="200">200</option>
+                    <option value="400">400</option>
+                </select>
+            </div>
+            <div class="col-4">
+                <label class="meta-label">Flash</label>
+                <select id="meta-flash" class="meta-select">
+                    <option value="16">No Flash</option>
+                    <option value="1">Flash On</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="map"></div>
+        <div class="row g-2 mt-1">
+            <div class="col-6"><input type="text" id="meta-lat" class="meta-input" readonly placeholder="Lat"></div>
+            <div class="col-6"><input type="text" id="meta-lon" class="meta-input" readonly placeholder="Lon"></div>
+        </div>
+
+        <div class="col-12 mt-2">
+            <label class="meta-label">Alamat Lokasi</label>
+            <textarea id="meta-address" class="meta-input" rows="2" readonly placeholder="Geser pin untuk mencari alamat..."></textarea>
+        </div>
+    </div>
+
+    <div class="mode-selector">
+        <button id="btn-land" class="btn-mode active" onclick="setMode('mode-landscape', this)">
+            <i class="bi bi-phone-landscape"></i> Landscape
+        </button>
+        <button id="btn-port" class="btn-mode" onclick="setMode('mode-portrait', this)">
+            <i class="bi bi-phone"></i> Portrait
+        </button>
+    </div>
 
     <div class="mb-3">
-        <label for="fileInput" class="custom-file-upload">
+        <label for="fileInput" style="width:100%; cursor:pointer; border: 2px dashed #cbd5e1; border-radius:12px; padding:15px; display:block; text-align:center;">
             <i class="bi bi-cloud-arrow-up fs-2 text-primary"></i>
-            <div id="file-name-display" class="small fw-bold text-primary mt-2">Pilih Foto | maks 4 foto</div>
+            <div id="file-name-display" class="small fw-bold text-primary mt-1">Pilih Foto | maks 4 foto</div>
         </label>
         <input type="file" id="fileInput" style="display:none" multiple accept="image/*">
     </div>
@@ -62,97 +223,235 @@
         </div>
     </div>
 
-    <button id="exportBtn" class="download-btn text-uppercase"><i class="bi bi-download"></i> Download</button>
-    <button id="refreshBtn" class="refresh-btn" onclick="resetApp()"><i class="bi bi-arrow-clockwise"></i> Refresh Aplikasi</button>
+    <button id="exportBtn" class="download-btn"><i class="bi bi-download"></i> Download</button>
+    <button id="refreshBtn" class="refresh-btn" onclick="resetApp()"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
+    // 1. Inisialisasi Peta (Default Jakarta sebelum GPS aktif)
+    const map = L.map('map').setView([-6.2000, 106.8166], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    const marker = L.marker([-6.2000, 106.8166], {draggable: true}).addTo(map);
+
+    // Variabel kontrol untuk sinkronisasi alamat
+    let lastLat = 0;
+    let lastLon = 0;
+    let addressTimeout = null;
+
+    // Fungsi mengambil alamat dari API Nominatim
+    async function getAddress(lat, lon) {
+        // Jangan jalankan jika koordinat tidak berubah signifikan
+        if (lat.toFixed(6) === lastLat.toFixed(6) && lon.toFixed(6) === lastLon.toFixed(6)) return;
+        
+        const addrBox = document.getElementById('meta-address');
+        addrBox.value = "📍 Sedang sinkronisasi titik baru...";
+
+        // Zoom 21 untuk akurasi maksimal & Cache Buster agar data tidak nyangkut
+        const randomStr = Math.random().toString(36).substring(7);
+        const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&zoom=21&addressdetails=1&cb=${randomStr}`;
+
+        try {
+            const response = await fetch(url, {
+                headers: { 'Accept-Language': 'id' }
+            });
+            
+            if (!response.ok) throw new Error('Limit');
+            const data = await response.json();
+            
+            if (data && data.display_name) {
+                // Update tampilan alamat
+                addrBox.value = data.display_name;
+                lastLat = lat;
+                lastLon = lon;
+            } else {
+                addrBox.value = "Alamat spesifik tidak ditemukan di database.";
+            }
+        } catch (error) {
+            addrBox.value = "Koneksi sibuk. Alamat otomatis gagal dimuat.";
+            console.error(error);
+        }
+    }
+
+    // Fungsi Update Koordinat (Fungsi Utama untuk EXIF)
+    function updateCoords(lat, lon) {
+        // Update input angka secara instan (ini yang masuk ke EXIF foto)
+        document.getElementById('meta-lat').value = lat.toFixed(6);
+        document.getElementById('meta-lon').value = lon.toFixed(6);
+        
+        // Debounce 500ms untuk pencarian alamat agar tidak spam API
+        clearTimeout(addressTimeout);
+        addressTimeout = setTimeout(() => {
+            getAddress(lat, lon);
+        }, 500);
+    }
+
+    // Listener: Saat Pin di-drag dan dilepas
+    marker.on('dragend', function(e) {
+        const p = e.target.getLatLng();
+        updateCoords(p.lat, p.lng);
+    });
+
+    // Listener: Saat Peta diklik di titik tertentu
+    map.on('click', function(e) {
+        marker.setLatLng(e.latlng);
+        updateCoords(e.latlng.lat, e.latlng.lng);
+    });
+
+    // Deteksi Lokasi Awal menggunakan GPS Perangkat
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(p => {
+            const lat = p.coords.latitude; 
+            const lon = p.coords.longitude;
+            map.setView([lat, lon], 15); 
+            marker.setLatLng([lat, lon]); 
+            updateCoords(lat, lon);
+        }, () => {
+            // Default jika GPS ditolak
+            updateCoords(-6.2000, 106.8166);
+        });
+    }
+
+    // --- LOGIKA GAMBAR & EXPORT ---
     const fileInput = document.getElementById('fileInput');
     const collageArea = document.getElementById('collage-area');
     const exportBtn = document.getElementById('exportBtn');
     const refreshBtn = document.getElementById('refreshBtn');
     const fileNameDisplay = document.getElementById('file-name-display');
+    const devicePreset = document.getElementById('device-preset');
     let selectedImages = [];
 
+    // Mengatur Mode Tampilan Collage
     function setMode(mode, btn) {
-        document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         collageArea.className = mode + (selectedImages.length === 0 ? ' is-empty' : '');
         updateView();
     }
 
+    // Input File Foto
     fileInput.onchange = function() {
         const files = Array.from(fileInput.files);
         if (selectedImages.length + files.length > 4) {
-            alert("Maksimal 4 foto!");
+            alert("Maksimal 4 foto");
             return;
         }
         files.forEach(file => {
             const reader = new FileReader();
-            reader.onload = (e) => { selectedImages.push(e.target.result); updateView(); };
+            reader.onload = (e) => { 
+                selectedImages.push(e.target.result); 
+                updateView(); 
+            };
             reader.readAsDataURL(file);
         });
-        fileInput.value = "";
     };
 
+    // Update Tampilan Collage di Layar
     function updateView() {
         collageArea.innerHTML = '';
-        
-        // Update Teks Dinamis di Area Pilih Foto
         if (selectedImages.length === 0) {
             fileNameDisplay.innerText = "Pilih Foto | maks 4 foto";
             collageArea.classList.add('is-empty');
             collageArea.innerHTML = '<div class="text-muted"><small>Foto akan muncul di sini</small></div>';
             return;
-        } else {
-            fileNameDisplay.innerText = `${selectedImages.length} Foto diupload`;
         }
-
         collageArea.classList.remove('is-empty');
         selectedImages.forEach((src, index) => {
             const wrapper = document.createElement('div');
             wrapper.className = 'img-wrapper';
-            wrapper.innerHTML = `<button class="btn-remove" onclick="removeImage(${index})"><i class="bi bi-x"></i></button><img src="${src}" class="img-item">`;
+            wrapper.innerHTML = `
+                <button class="btn-remove" onclick="removeImage(${index})"><i class="bi bi-x"></i></button>
+                <img src="${src}" class="img-item">
+            `;
             collageArea.appendChild(wrapper);
         });
+        fileNameDisplay.innerText = `${selectedImages.length} Foto terpilih`;
     }
 
+    // Hapus Foto dari Daftar
     function removeImage(index) { 
         selectedImages.splice(index, 1); 
         updateView(); 
     }
 
-    function resetApp() {
-        selectedImages = [];
-        updateView();
-        exportBtn.innerHTML = `<i class="bi bi-download"></i> DOWNLOAD`;
-        exportBtn.disabled = false;
-        refreshBtn.style.display = 'none';
-        exportBtn.style.backgroundColor = '#10b981';
+    // Refresh Aplikasi
+    function resetApp() { 
+        location.reload(); 
     }
 
+    // Konversi Desimal ke Format GPS EXIF
+    function DegToExif(deg) {
+        const abs = Math.abs(deg); 
+        const d = Math.floor(abs);
+        const mNot = (abs - d) * 60; 
+        const m = Math.floor(mNot);
+        const s = Math.floor((mNot - m) * 60 * 100);
+        return [[d, 1], [m, 1], [s, 100]];
+    }
+
+    // Fungsi Export ke JPEG dengan Metadata EXIF
     exportBtn.onclick = async () => {
         if (selectedImages.length === 0) return;
-        document.querySelectorAll('.btn-remove').forEach(btn => btn.style.display = 'none');
-        exportBtn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> PROSES...`;
+        
+        // Sembunyikan tombol hapus saat proses capture
+        document.querySelectorAll('.btn-remove').forEach(b => b.style.display = 'none');
+        exportBtn.innerHTML = `MENGOLAH...`; 
         exportBtn.disabled = true;
         
         try {
-            const canvas = await html2canvas(collageArea, { scale: 5, useCORS: true });
-            const link = document.createElement('a');
-            link.download = `Collage_${Date.now()}.jpg`;
-            link.href = canvas.toDataURL("image/jpeg", 1.0); 
-            link.click();
+            const canvas = await html2canvas(collageArea, { scale: 4, useCORS: true });
+            let jpegData = canvas.toDataURL("image/jpeg", 0.9);
+            const now = new Date();
+            
+            // Format Tanggal EXIF
+            const dateExif = now.getFullYear() + ":" + ("0" + (now.getMonth() + 1)).slice(-2) + ":" + ("0" + now.getDate()).slice(-2) + " " + ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2) + ":" + ("0" + now.getSeconds()).slice(-2);
+            
+            const opt = devicePreset.options[devicePreset.selectedIndex];
+            let exifObj = {"0th":{}, "Exif":{}, "GPS":{}};
+            
+            // Setting Metadata Kamera
+            exifObj["0th"][piexif.ImageIFD.Make] = "samsung";
+            exifObj["0th"][piexif.ImageIFD.Model] = opt.getAttribute('data-model');
+            exifObj["0th"][piexif.ImageIFD.Software] = opt.getAttribute('data-soft');
+            exifObj["0th"][piexif.ImageIFD.DateTime] = dateExif;
+            
+            exifObj["Exif"][piexif.ExifIFD.DateTimeOriginal] = dateExif;
+            exifObj["Exif"][piexif.ExifIFD.FNumber] = [parseFloat(document.getElementById('meta-f').value) * 10, 10];
+            exifObj["Exif"][piexif.ExifIFD.ISOSpeedRatings] = parseInt(document.getElementById('meta-iso').value);
+            exifObj["Exif"][piexif.ExifIFD.Flash] = parseInt(document.getElementById('meta-flash').value);
 
-            // Ubah tombol saat selesai
-            exportBtn.innerHTML = `<i class="bi bi-check-circle"></i> DOWNLOAD SELESAI`;
-            exportBtn.style.backgroundColor = '#6366f1'; 
-            refreshBtn.style.display = 'flex'; // Munculkan tombol Refresh
-        } catch (err) { console.error(err); }
+            // Setting Metadata GPS (Paling Penting)
+            const lat = parseFloat(document.getElementById('meta-lat').value);
+            const lon = parseFloat(document.getElementById('meta-lon').value);
+            
+            exifObj["GPS"][piexif.GPSIFD.GPSLatitudeRef] = lat >= 0 ? "N" : "S";
+            exifObj["GPS"][piexif.GPSIFD.GPSLatitude] = DegToExif(lat);
+            exifObj["GPS"][piexif.GPSIFD.GPSLongitudeRef] = lon >= 0 ? "E" : "W";
+            exifObj["GPS"][piexif.GPSIFD.GPSLongitude] = DegToExif(lon);
+
+            // Inject EXIF ke dalam Gambar
+            const exifBytes = piexif.dump(exifObj);
+            jpegData = piexif.insert(exifBytes, jpegData);
+            
+            // Download File
+            const link = document.createElement('a');
+            link.download = `SAMSUNG_${now.getTime()}.jpg`;
+            link.href = jpegData; 
+            link.click();
+            
+            exportBtn.innerHTML = `SELESAI!`; 
+            refreshBtn.style.display = 'flex';
+        } catch (e) { 
+            alert("Gagal mengolah gambar"); 
+            exportBtn.disabled = false; 
+            exportBtn.innerHTML = `EXPORT KE JPEG`;
+        }
         
-        document.querySelectorAll('.btn-remove').forEach(btn => btn.style.display = 'flex');
+        // Tampilkan kembali tombol hapus
+        document.querySelectorAll('.btn-remove').forEach(b => b.style.display = 'flex');
     };
 </script>
 </body>
